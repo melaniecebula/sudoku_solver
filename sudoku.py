@@ -42,12 +42,24 @@ def generate_input(size = 9):
             for k in range(9):
                 new_generate_box_rule(block, k)
         #Custom
-        #asserts.append("ASSERT(" + create(6, 0, 5, True) + ");")
-        #asserts.append("ASSERT(" + create(5, 1, 9, True) + ");")
-        #asserts.append("ASSERT(" + create(7, 2, 2, True) + ");")
-        #asserts.append("ASSERT(" + create(2, 2, 1, True) + ");")
-        #asserts.append("ASSERT(" + create(4, 2, 4, True) + ");")
-        #asserts.append("ASSERT(" + create(3, 3, 5, True) + ");")
+        asserts.append("ASSERT(" + create(6, 0, 5, False) + ");")
+        asserts.append("ASSERT(" + create(5, 1, 9, False) + ");")
+        asserts.append("ASSERT(" + create(7, 2, 2, False) + ");")
+        asserts.append("ASSERT(" + create(2, 2, 1, False) + ");")
+        asserts.append("ASSERT(" + create(4, 2, 4, False) + ");")
+        asserts.append("ASSERT(" + create(3, 3, 5, False) + ");")
+        asserts.append("ASSERT(" + create(2, 4, 2, False) + ");")
+        asserts.append("ASSERT(" + create(7, 4, 1, False) + ");")
+        asserts.append("ASSERT(" + create(8, 4, 4, False) + ");")
+        asserts.append("ASSERT(" + create(1, 5, 3, False) + ");")
+        asserts.append("ASSERT(" + create(3, 5, 7, False) + ");")
+        asserts.append("ASSERT(" + create(4, 6, 1, False) + ");")
+        asserts.append("ASSERT(" + create(1, 7, 8, False) + ");")
+        asserts.append("ASSERT(" + create(6, 7, 7, False) + ");")
+        asserts.append("ASSERT(" + create(1, 8, 5, False) + ");")
+        asserts.append("ASSERT(" + create(6, 8, 3, False) + ");")
+        asserts.append("ASSERT(" + create(8, 8, 9, False) + ");")
+
         for col in range(size):
             for k in range(9):
                 new_generate_col_rule(col, k, size)
