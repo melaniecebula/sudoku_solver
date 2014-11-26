@@ -1,7 +1,7 @@
 asserts = []
+bools = []
 def generate_input(size = 9):
 	#Whether variable at location i,j is k 
-	vars = []
 	for i in range(size):
 		for j in range(size):
 			#curr_string = "row" + str(i) + "col" + str(j)
@@ -12,7 +12,7 @@ def generate_input(size = 9):
 				string = "row" + str(i) + "col" + str(j) + "num" + str(k + 1)
 				#string = create(i, j, k + 1, True)
 				tmp.append(string)
-				vars.append(string + " : BOOLEAN;")
+				bools.append(string + " : BOOLEAN;")
 			#variable at location i,j must be one of k 1-9
 			#TODO:  might want to assign each var rowicolj to each of these statements:  rowicolj <=> curr_string
 			curr_string = (" OR ").join(tmp)
@@ -24,6 +24,21 @@ def generate_input(size = 9):
 	
 	for k in range(size):
 		generate_col_rules(k, size)
+
+        #TODO:  this works for one box (0-2 by 0-2)
+
+        #for starti in range(0, 9, 3):
+         #   for startj in range(0, 9, 3):
+                #generate_box_rule(starti, startj, 1)
+         #       for k in range(size):
+          #          generate_box_rule(starti, startj, k)
+
+        for bool in bools:
+            print bool
+        for ast in asserts:
+            print ast
+
+
 #IDEAS:
 	#For each row, for each position of a number, for each number  1-9
 def generate_row_rules(k, size):
@@ -45,6 +60,7 @@ def generate_row_rules(k, size):
 		to_and.append("(" + tmp + ")")
 	rows_rule = " AND ".join(to_and)
 	#print rows_rule
+        rows_rule = "ASSERT(" + rows_rule + ");"
 	asserts.append(rows_rule)
 					
 def generate_col_rules(k, size):
@@ -61,10 +77,33 @@ def generate_col_rules(k, size):
 		to_and.append("(" + tmp + ")")
 	cols_rule = " AND ".join(to_and)
 	#print cols_rule
+        cols_rule = "ASSERT(" + cols_rule + ");"
 	asserts.append(cols_rule)
 
-def generate_box_rule():
+def generate_box_rule(starti, startj, k):
+    sts = []
+    for i in range(starti, starti + 3):
+        for j in range(startj, startj + 3):
+            #print i, j
+            #TODO:  noteq_box does not work!!!
+            #We want to go in a range from starti, start i + 3 and make sure noteq doens't contain i (current i)
+            noteq = noteq_box(starti, startj, k+1, 3, i, j)
+            #print noteq
+            noteq = ") AND NOT(".join(noteq)
+            st = "row" + str(i) + "col" + str(j) + "num" + str(k + 1) + " AND NOT(" + noteq + ")"
+            sts.append("(" + st + ")")
+    tmp = " OR ".join(sts)
+    tmp = "ASSERT(" + tmp + ");"
+    asserts.append(tmp)
 					
+
+def noteq_box(starti, startj, k, sz, i, j):
+    res = []
+    for m in range(starti, starti + sz):
+        for l in range(startj, startj +sz):
+            if not (m == i and l == j):
+                res.append(create(l, m, k, True))
+    return res
 			
 
 #(row0_col1_num1 AND NOT(row0_col2_num1) AND NOT (row_0_col3_num1) OR (NOT(row0_col1_num1) AND row0_col2_num1 AND NOT(...)
