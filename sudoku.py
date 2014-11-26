@@ -7,7 +7,7 @@ def generate_input(size = 9):
 			curr_string = "row" + str(i) + "col" + str(j)
 			tmp = []
 			for k in range(size):
-				string = "row" + str(i) + "col" + str(j) + "num" + str(k + 1)
+                                string = create(i, j, k+1)
 				tmp.append(string)
 				bools.append(string + " : BOOLEAN;")
                         at_most_one.append(tmp)
@@ -23,23 +23,23 @@ def generate_input(size = 9):
             for k in range(9):
                 new_generate_box_rule(block, k)
         #Custom
-        asserts.append("ASSERT(" + create(6, 0, 5, False) + ");")
-        asserts.append("ASSERT(" + create(5, 1, 9, False) + ");")
-        asserts.append("ASSERT(" + create(7, 2, 2, False) + ");")
-        asserts.append("ASSERT(" + create(2, 2, 1, False) + ");")
-        asserts.append("ASSERT(" + create(4, 2, 4, False) + ");")
-        asserts.append("ASSERT(" + create(3, 3, 5, False) + ");")
-        asserts.append("ASSERT(" + create(2, 4, 2, False) + ");")
-        asserts.append("ASSERT(" + create(7, 4, 1, False) + ");")
-        asserts.append("ASSERT(" + create(8, 4, 4, False) + ");")
-        asserts.append("ASSERT(" + create(1, 5, 3, False) + ");")
-        asserts.append("ASSERT(" + create(3, 5, 7, False) + ");")
-        asserts.append("ASSERT(" + create(4, 6, 1, False) + ");")
-        asserts.append("ASSERT(" + create(1, 7, 8, False) + ");")
-        asserts.append("ASSERT(" + create(6, 7, 7, False) + ");")
-        asserts.append("ASSERT(" + create(1, 8, 5, False) + ");")
-        asserts.append("ASSERT(" + create(6, 8, 3, False) + ");")
-        asserts.append("ASSERT(" + create(8, 8, 9, False) + ");")
+        asserts.append("ASSERT(" + create(6, 0, 5) + ");")
+        asserts.append("ASSERT(" + create(5, 1, 9) + ");")
+        asserts.append("ASSERT(" + create(7, 2, 2) + ");")
+        asserts.append("ASSERT(" + create(2, 2, 1) + ");")
+        asserts.append("ASSERT(" + create(4, 2, 4) + ");")
+        asserts.append("ASSERT(" + create(3, 3, 5) + ");")
+        asserts.append("ASSERT(" + create(2, 4, 2) + ");")
+        asserts.append("ASSERT(" + create(7, 4, 1) + ");")
+        asserts.append("ASSERT(" + create(8, 4, 4) + ");")
+        asserts.append("ASSERT(" + create(1, 5, 3) + ");")
+        asserts.append("ASSERT(" + create(3, 5, 7) + ");")
+        asserts.append("ASSERT(" + create(4, 6, 1) + ");")
+        asserts.append("ASSERT(" + create(1, 7, 8) + ");")
+        asserts.append("ASSERT(" + create(6, 7, 7) + ");")
+        asserts.append("ASSERT(" + create(1, 8, 5) + ");")
+        asserts.append("ASSERT(" + create(6, 8, 3) + ");")
+        asserts.append("ASSERT(" + create(8, 8, 9) + ");")
 
         for col in range(size):
             for k in range(9):
@@ -70,7 +70,7 @@ def atLeastOne(lst):
 def new_generate_col_rule(col_num, k, size):
     res = []
     for i in range(size):
-        tmp = "row" + str(i) + "col" + str(col_num ) + "num" + str(k + 1)
+        tmp = create(i, col_num, k+1)
         res.append(tmp)
     res = " OR ".join(res)
     asserts.append("ASSERT(" + res + ");")
@@ -78,7 +78,7 @@ def new_generate_col_rule(col_num, k, size):
 def new_generate_row_rule(row_num, k, size):
     res = []
     for i in range(size):
-        tmp = "row" + str(row_num) + "col" + str(i) + "num" + str(k + 1)
+        tmp = create(row_num, i, k+1)
         res.append(tmp)
     res = " OR ".join(res)
     asserts.append("ASSERT(" + res + ");")
@@ -93,22 +93,19 @@ def new_generate_box_rule(block, k):
     for pt in pts:
         nots = []
         my_i, my_j = pt
-        my_pts = "row" + str(my_i) + "col" + str(my_j) + "num" + str(k + 1)
+        my_pts = create(my_i, my_j, k+1)
         for x in pts:
             x_i, x_j = x
             if x != pt:
-                nots.append("row" + str(x_i) + "col" + str(x_j) + "num" + str(k + 1))
+                to_append = create(x_i, x_j, k+1)
+                nots.append(to_append)
         res = "(" + my_pts + " AND(NOT(" + ")) AND(NOT(".join(nots) + ")))"
         tmp.append(res)
     tmp = " OR ".join(tmp)
     tmp = "ASSERT(" + tmp + ");"
     asserts.append(tmp)
 
-
-
-def create(i, j, k, row):
-	if row:
-		i, j = j, i
+def create(i, j, k):
 	res = "row" + str(i) + "col" + str(j) + "num" + str(k)
 	return res
 if __name__ == "__main__":
