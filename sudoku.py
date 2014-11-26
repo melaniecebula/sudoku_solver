@@ -2,6 +2,7 @@ asserts = []
 bools = []
 def generate_input(size = 9):
 	#Whether variable at location i,j is k 
+        at_most_one = []
 	for i in range(size):
 		for j in range(size):
 			#curr_string = "row" + str(i) + "col" + str(j)
@@ -15,28 +16,86 @@ def generate_input(size = 9):
 				bools.append(string + " : BOOLEAN;")
 			#variable at location i,j must be one of k 1-9
 			#TODO:  might want to assign each var rowicolj to each of these statements:  rowicolj <=> curr_string
-			curr_string = (" OR ").join(tmp)
-			curr_string = "ASSERT(" + curr_string + ");"
-			asserts.append(curr_string)
-	#print asserts
-	for k in range(size):
-		generate_row_rules(k, size)
-	
-	for k in range(size):
-		generate_col_rules(k, size)
+			#curr_string = (" OR ").join(tmp)
+			#curr_string = "ASSERT(" + curr_string + ");"
+			#asserts.append(curr_string)
+                        at_most_one.append(tmp)
+        for expr in at_most_one:
+            res = "ASSERT((" +atLeastOne(expr) + ") AND (" + assertAtMostOne(expr) +"));"
+            #print res
+            asserts.append(res)
 
-        #TODO:  this works for one box (0-2 by 0-2)
+#TODO:  blocks now work, but adding in both row and col rules causes problems
+#	for k in range(size):
+#		generate_row_rules(k, size)
+	
+#	for k in range(size):
+#		generate_col_rules(k, size)
+
 
         #for starti in range(0, 9, 3):
          #   for startj in range(0, 9, 3):
-                #generate_box_rule(starti, startj, 1)
+          #      generate_box_rule(starti, startj, 0)
          #       for k in range(size):
           #          generate_box_rule(starti, startj, k)
+        blocks = []
+        for i in range(0, 9, 3):
+            for j in range(0, 9, 3):
+                blocks.append((i, j))
+        for block in blocks:
+            for k in range(9):
+                new_generate_box_rule(block, k)
+        #Custom
+        asserts.append("ASSERT(" + create(6, 0, 5, True) + ");")
+        asserts.append("ASSERT(" + create(5, 1, 9, True) + ");")
+        asserts.append("ASSERT(" + create(7, 2, 2, True) + ");")
+        asserts.append("ASSERT(" + create(2, 2, 1, True) + ");")
+        asserts.append("ASSERT(" + create(4, 2, 4, True) + ");")
+        asserts.append("ASSERT(" + create(3, 3, 5, True) + ");")
 
         for bool in bools:
             print bool
         for ast in asserts:
             print ast
+def assertAtMostOne(lst):
+    res = "NOT(" + lst[0] + ") OR NOT(" + lst[1] +")"
+    for i in range(1, len(lst)):
+        for j in range(1, len(lst)):
+            if i != j:
+                res = res + " AND (" + "NOT(" + lst[i] + ") OR NOT(" + lst[j] + "))"
+    return res
+
+def atLeastOne(lst):
+    res = lst[0]
+    for i in range(1, len(lst)):
+        res = res + " OR " + lst[i]
+    return res
+
+def new_generate_box_rule(block, k):
+    r, c = block
+    pts = []
+    for i in range(r, r + 3):
+        for j in range(c, c + 3):
+            pts.append((i, j))
+    tmp = []
+    for pt in pts:
+        nots = []
+        my_i, my_j = pt
+        my_pts = "row" + str(my_i) + "col" + str(my_j) + "num" + str(k + 1)
+        for x in pts:
+            x_i, x_j = x
+            if x != pt:
+                nots.append("row" + str(x_i) + "col" + str(x_j) + "num" + str(k + 1))
+        res = "(" + my_pts + " AND(NOT(" + ")) AND(NOT(".join(nots) + ")))"
+        #res = "(" + my_pts + "=>" +"( NOT(" + ") AND NOT(".join(nots) + ")))"
+        tmp.append(res)
+    #tmp = " OR ".join(tmp)
+    #tmp = "ASSERT(" + tmp + ");"
+    #asserts.append(tmp)
+    #res = "ASSERT(" + assertAtMostOne(tmp) +");"
+    tmp = "ASSERT((" +atLeastOne(tmp) + ") AND (" + assertAtMostOne(tmp) +"));"
+    asserts.append(tmp)
+
 
 
 #IDEAS:
@@ -48,18 +107,13 @@ def generate_row_rules(k, size):
 		for j in range(size):
 			#TODO:  problem with noteq?
 			noteq = generate_noteq2(i, j, k + 1)
-			#print "row" + str(i) + "col" + str(j) + "num" + str(k + 1)
-			#print noteq
 			noteq = ") AND NOT(".join(noteq)
 			#row = create(i, j, k + 1, True) + " AND NOT(" + noteq + ")"
 			row = "row" + str(i) + "col" + str(j) + "num" + str(k + 1) + " AND NOT(" + noteq + ")"
-			#print i, j, k
-			#print row
 			num_assert.append("(" + row + ")")
 		tmp = " OR ".join(num_assert)
 		to_and.append("(" + tmp + ")")
 	rows_rule = " AND ".join(to_and)
-	#print rows_rule
         rows_rule = "ASSERT(" + rows_rule + ");"
 	asserts.append(rows_rule)
 					
@@ -76,7 +130,6 @@ def generate_col_rules(k, size):
 		tmp = " OR ".join(num_assert)
 		to_and.append("(" + tmp + ")")
 	cols_rule = " AND ".join(to_and)
-	#print cols_rule
         cols_rule = "ASSERT(" + cols_rule + ");"
 	asserts.append(cols_rule)
 
@@ -84,11 +137,8 @@ def generate_box_rule(starti, startj, k):
     sts = []
     for i in range(starti, starti + 3):
         for j in range(startj, startj + 3):
-            #print i, j
             #TODO:  noteq_box does not work!!!
-            #We want to go in a range from starti, start i + 3 and make sure noteq doens't contain i (current i)
             noteq = noteq_box(starti, startj, k+1, 3, i, j)
-            #print noteq
             noteq = ") AND NOT(".join(noteq)
             st = "row" + str(i) + "col" + str(j) + "num" + str(k + 1) + " AND NOT(" + noteq + ")"
             sts.append("(" + st + ")")
@@ -96,7 +146,6 @@ def generate_box_rule(starti, startj, k):
     tmp = "ASSERT(" + tmp + ");"
     asserts.append(tmp)
 					
-
 def noteq_box(starti, startj, k, sz, i, j):
     res = []
     for m in range(starti, starti + sz):
@@ -106,8 +155,6 @@ def noteq_box(starti, startj, k, sz, i, j):
     return res
 			
 
-#(row0_col1_num1 AND NOT(row0_col2_num1) AND NOT (row_0_col3_num1) OR (NOT(row0_col1_num1) AND row0_col2_num1 AND NOT(...)
-
 def generate_noteq(i, j, k, size=9):
 	res = []
 	for l in range(size):
@@ -115,10 +162,6 @@ def generate_noteq(i, j, k, size=9):
 			res.append(create(i, l, k, True))
 	return res
 		
-#8, 0 --? should all be in row 8 but col != 0
-#row8col0num9
-#['row1col8num9', 'row2col8num9', 'row3col8num9', 'row4col8num9', 'row5col8num9', 'row6col8num9', 'row7col8num9', 'row8col8num9']
-#should be row8col1
 def generate_noteq2(i, j, k, size=9):
 	res = []
 	for l in range(size):
@@ -131,7 +174,6 @@ def create(i, j, k, row):
 	if row:
 		i, j = j, i
 	res = "row" + str(i) + "col" + str(j) + "num" + str(k)
-	#print res
 	return res
 
 #Have booleans for "unused vars in this row"  ex:  rowi: 1, 2, 3, 4, 5, 6, 7, 8 ,9
