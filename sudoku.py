@@ -26,18 +26,14 @@ def generate_input(size = 9):
             asserts.append(res)
 
 #TODO:  blocks now work, but adding in both row and col rules causes problems
-#	for k in range(size):
+	#for k in range(size):
 #		generate_row_rules(k, size)
 	
-#	for k in range(size):
+	#for k in range(size):
 #		generate_col_rules(k, size)
+        #generate_col_rules(0, size)
 
 
-        #for starti in range(0, 9, 3):
-         #   for startj in range(0, 9, 3):
-          #      generate_box_rule(starti, startj, 0)
-         #       for k in range(size):
-          #          generate_box_rule(starti, startj, k)
         blocks = []
         for i in range(0, 9, 3):
             for j in range(0, 9, 3):
@@ -46,12 +42,19 @@ def generate_input(size = 9):
             for k in range(9):
                 new_generate_box_rule(block, k)
         #Custom
-        asserts.append("ASSERT(" + create(6, 0, 5, True) + ");")
-        asserts.append("ASSERT(" + create(5, 1, 9, True) + ");")
-        asserts.append("ASSERT(" + create(7, 2, 2, True) + ");")
-        asserts.append("ASSERT(" + create(2, 2, 1, True) + ");")
-        asserts.append("ASSERT(" + create(4, 2, 4, True) + ");")
-        asserts.append("ASSERT(" + create(3, 3, 5, True) + ");")
+        #asserts.append("ASSERT(" + create(6, 0, 5, True) + ");")
+        #asserts.append("ASSERT(" + create(5, 1, 9, True) + ");")
+        #asserts.append("ASSERT(" + create(7, 2, 2, True) + ");")
+        #asserts.append("ASSERT(" + create(2, 2, 1, True) + ");")
+        #asserts.append("ASSERT(" + create(4, 2, 4, True) + ");")
+        #asserts.append("ASSERT(" + create(3, 3, 5, True) + ");")
+        for col in range(size):
+            for k in range(9):
+                new_generate_col_rule(col, k, size)
+
+        for row in range(size):
+            for k in range(9):
+                new_generate_row_rule(row, k, size)
 
         for bool in bools:
             print bool
@@ -71,6 +74,22 @@ def atLeastOne(lst):
         res = res + " OR " + lst[i]
     return res
 
+def new_generate_col_rule(col_num, k, size):
+    res = []
+    for i in range(size):
+        tmp = "row" + str(i) + "col" + str(col_num ) + "num" + str(k + 1)
+        res.append(tmp)
+    res = " OR ".join(res)
+    asserts.append("ASSERT(" + res + ");")
+
+def new_generate_row_rule(row_num, k, size):
+    res = []
+    for i in range(size):
+        tmp = "row" + str(row_num) + "col" + str(i) + "num" + str(k + 1)
+        res.append(tmp)
+    res = " OR ".join(res)
+    asserts.append("ASSERT(" + res + ");")
+
 def new_generate_box_rule(block, k):
     r, c = block
     pts = []
@@ -89,12 +108,12 @@ def new_generate_box_rule(block, k):
         res = "(" + my_pts + " AND(NOT(" + ")) AND(NOT(".join(nots) + ")))"
         #res = "(" + my_pts + "=>" +"( NOT(" + ") AND NOT(".join(nots) + ")))"
         tmp.append(res)
-    #tmp = " OR ".join(tmp)
-    #tmp = "ASSERT(" + tmp + ");"
-    #asserts.append(tmp)
-    #res = "ASSERT(" + assertAtMostOne(tmp) +");"
-    tmp = "ASSERT((" +atLeastOne(tmp) + ") AND (" + assertAtMostOne(tmp) +"));"
+    tmp = " OR ".join(tmp)
+    tmp = "ASSERT(" + tmp + ");"
     asserts.append(tmp)
+    #res = "ASSERT(" + assertAtMostOne(tmp) +");"
+    #tmp = "ASSERT((" +atLeastOne(tmp) + ") AND (" + assertAtMostOne(tmp) +"));"
+    #asserts.append(tmp)
 
 
 
