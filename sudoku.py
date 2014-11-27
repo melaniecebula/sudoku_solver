@@ -1,7 +1,10 @@
+#Usage:  python sudoku.py > test.in
+#Pass test.in to a SAT solver
+#Adjust Custom section with given tiles #TODO method for handling custom tiles given list of triples
 asserts = []
 bools = []
 def generate_input(size = 9):
-        at_most_one = []
+        exactly_one = []
 	for i in range(size):
 		for j in range(size):
 			curr_string = "row" + str(i) + "col" + str(j)
@@ -10,19 +13,21 @@ def generate_input(size = 9):
                                 string = create(i, j, k+1)
 				tmp.append(string)
 				bools.append(string + " : BOOLEAN;")
-                        at_most_one.append(tmp)
-        for expr in at_most_one:
+                        exactly_one.append(tmp)
+        #Exactly one value per square
+        for expr in exactly_one:
             res = "ASSERT((" +atLeastOne(expr) + ") AND (" + assertAtMostOne(expr) +"));"
             asserts.append(res)
 
+        #3x3 blocks
         blocks = []
         for i in range(0, 9, 3):
             for j in range(0, 9, 3):
                 blocks.append((i, j))
         for block in blocks:
             for k in range(9):
-                new_generate_box_rule(block, k)
-        #Custom
+                generate_box_rule(block, k)
+        #Custom (given row, col, k values)
         asserts.append("ASSERT(" + create(6, 0, 5) + ");")
         asserts.append("ASSERT(" + create(5, 1, 9) + ");")
         asserts.append("ASSERT(" + create(7, 2, 2) + ");")
@@ -41,18 +46,22 @@ def generate_input(size = 9):
         asserts.append("ASSERT(" + create(6, 8, 3) + ");")
         asserts.append("ASSERT(" + create(8, 8, 9) + ");")
 
+        #cols rules
         for col in range(size):
             for k in range(9):
-                new_generate_col_rule(col, k, size)
+                generate_col_rule(col, k, size)
 
+        #rows rules
         for row in range(size):
             for k in range(9):
-                new_generate_row_rule(row, k, size)
+                generate_row_rule(row, k, size)
 
+        #print to file
         for bool in bools:
             print bool
         for ast in asserts:
             print ast
+
 def assertAtMostOne(lst):
     res = "NOT(" + lst[0] + ") OR NOT(" + lst[1] +")"
     for i in range(1, len(lst)):
@@ -67,7 +76,7 @@ def atLeastOne(lst):
         res = res + " OR " + lst[i]
     return res
 
-def new_generate_col_rule(col_num, k, size):
+def generate_col_rule(col_num, k, size):
     res = []
     for i in range(size):
         tmp = create(i, col_num, k+1)
@@ -75,7 +84,7 @@ def new_generate_col_rule(col_num, k, size):
     res = " OR ".join(res)
     asserts.append("ASSERT(" + res + ");")
 
-def new_generate_row_rule(row_num, k, size):
+def generate_row_rule(row_num, k, size):
     res = []
     for i in range(size):
         tmp = create(row_num, i, k+1)
@@ -83,7 +92,7 @@ def new_generate_row_rule(row_num, k, size):
     res = " OR ".join(res)
     asserts.append("ASSERT(" + res + ");")
 
-def new_generate_box_rule(block, k):
+def generate_box_rule(block, k):
     r, c = block
     pts = []
     for i in range(r, r + 3):
